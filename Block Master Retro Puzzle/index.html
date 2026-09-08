@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Block Master: Retro Puzzle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <div id="game-app">
+    <!-- Main Menu Screen -->
+    <div id="screen-menu" class="screen-panel">
+      <div class="brand-box">
+        <h1 class="logo-title">BLOCK MASTER</h1>
+        <h2 class="logo-subtitle">RETRO PUZZLE</h2>
+        <p class="tagline">THINK FAST. STACK SMART.</p>
+      </div>
+      <div class="menu-nav">
+        <button class="retro-btn btn-primary" id="btn-menu-start">START GAME</button>
+        <button class="retro-btn" id="btn-menu-modes">GAME MODES</button>
+        <button class="retro-btn" id="btn-menu-challenges">CHALLENGES</button>
+        <button class="retro-btn" id="btn-menu-scores">HIGH SCORES</button>
+        <button class="retro-btn" id="btn-menu-how">HOW TO PLAY</button>
+        <button class="retro-btn" id="btn-menu-settings">SETTINGS</button>
+      </div>
+      <div class="version-tag">VER 1.0 • ORIGINAL RETRO ENGINE</div>
+    </div>
+
+    <!-- Mode Select Screen -->
+    <div id="screen-modes" class="screen-panel hidden">
+      <h2 class="screen-heading">SELECT GAME MODE</h2>
+      <div class="mode-grid">
+        <div class="mode-card active" data-mode="classic">
+          <h3>CLASSIC</h3>
+          <p>Endless retro stacking. Level up every 10 lines as speed rises.</p>
+          <span class="mode-badge">ENDLESS</span>
+        </div>
+        <div class="mode-card" data-mode="timeattack">
+          <h3>TIME ATTACK</h3>
+          <p>Race the clock! Score as many points as possible in 2 minutes.</p>
+          <span class="mode-badge">120 SECONDS</span>
+        </div>
+        <div class="mode-card" data-mode="sprint">
+          <h3>40-LINE SPRINT</h3>
+          <p>Clear 40 lines as fast as humanly possible. Pure speed test.</p>
+          <span class="mode-badge">SPEED RUN</span>
+        </div>
+        <div class="mode-card" data-mode="marathon">
+          <h3>MARATHON</h3>
+          <p>Endurance trial. Survive 150 lines all the way to Level 15.</p>
+          <span class="mode-badge">150 LINES</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="retro-btn btn-primary" id="btn-mode-launch">DEPLOY MODE</button>
+        <button class="retro-btn" id="btn-mode-back">BACK</button>
+      </div>
+    </div>
+
+    <!-- Challenge Mode Screen -->
+    <div id="screen-challenges" class="screen-panel hidden">
+      <h2 class="screen-heading">TACTICAL CHALLENGES</h2>
+      <div class="challenge-list" id="challenge-container">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="btn-row">
+        <button class="retro-btn btn-primary" id="btn-launch-challenge">START CHALLENGE</button>
+        <button class="retro-btn" id="btn-challenge-back">BACK</button>
+      </div>
+    </div>
+
+    <!-- High Scores Screen -->
+    <div id="screen-scores" class="screen-panel hidden">
+      <h2 class="screen-heading">HALL OF FAME</h2>
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="classic">CLASSIC</button>
+        <button class="tab-btn" data-tab="timeattack">TIME ATTACK</button>
+        <button class="tab-btn" data-tab="sprint">SPRINT</button>
+        <button class="tab-btn" data-tab="marathon">MARATHON</button>
+      </div>
+      <div class="leaderboard-frame">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>NAME</th>
+              <th>SCORE</th>
+              <th>LINES</th>
+              <th>LVL</th>
+              <th>DATE</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- Injected dynamically -->
+          </tbody>
+        </table>
+      </div>
+      <button class="retro-btn" id="btn-scores-back">MAIN MENU</button>
+    </div>
+
+    <!-- How To Play Screen -->
+    <div id="screen-how" class="screen-panel hidden">
+      <h2 class="screen-heading">MANUAL & CONTROLS</h2>
+      <div class="manual-box">
+        <div class="manual-col">
+          <h3>KEYBOARD COMMANDS</h3>
+          <p><strong>◀ / ▶ (Arrows):</strong> Move Left / Right</p>
+          <p><strong>▲ / X:</strong> Rotate Clockwise</p>
+          <p><strong>Z:</strong> Rotate Counter-Clockwise</p>
+          <p><strong>▼ (Down Arrow):</strong> Soft Drop (+1 pt/cell)</p>
+          <p><strong>SPACEBAR:</strong> Hard Drop (+2 pts/cell)</p>
+          <p><strong>C / SHIFT:</strong> Hold Piece</p>
+          <p><strong>P / ESC:</strong> Pause Game</p>
+          <p><strong>R:</strong> Quick Restart</p>
+        </div>
+        <div class="manual-col">
+          <h3>SCORING & STRATEGY</h3>
+          <p>• <strong>Single Line:</strong> 100 × Level</p>
+          <p>• <strong>Double Lines:</strong> 300 × Level</p>
+          <p>• <strong>Triple Lines:</strong> 500 × Level</p>
+          <p>• <strong>Quad Clear (Master):</strong> 800 × Level</p>
+          <p>• <strong>Back-to-Back Quads:</strong> 1.5× Point Multiplier</p>
+          <p>• <strong>Combos:</strong> Consecutive line clears award exponential combo bonuses.</p>
+          <p>• <strong>Ghost Block:</strong> Use the landing shadow for instant precision placement.</p>
+        </div>
+      </div>
+      <button class="retro-btn" id="btn-how-back">RETURN</button>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="screen-settings" class="screen-panel hidden">
+      <h2 class="screen-heading">SYSTEM SETTINGS</h2>
+      <div class="settings-card">
+        <div class="setting-item">
+          <label>SOUND EFFECTS</label>
+          <input type="checkbox" id="chk-sfx" checked>
+        </div>
+        <div class="setting-item">
+          <label>MASTER VOLUME</label>
+          <input type="range" id="rng-volume" min="0" max="100" value="70">
+        </div>
+        <div class="setting-item">
+          <label>STARTING DIFFICULTY</label>
+          <select id="sel-difficulty">
+            <option value="easy">EASY (Relaxed Speed)</option>
+            <option value="normal" selected>NORMAL (Standard Challenge)</option>
+            <option value="hard">HARD (Fast Reflexes)</option>
+            <option value="extreme">EXTREME (Hyper Velocity)</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>GHOST PIECE PREVIEW</label>
+          <input type="checkbox" id="chk-ghost" checked>
+        </div>
+        <div class="setting-item">
+          <label>REDUCED ANIMATIONS</label>
+          <input type="checkbox" id="chk-reduced-motion">
+        </div>
+      </div>
+      <button class="retro-btn" id="btn-settings-back">SAVE & EXIT</button>
+    </div>
+
+    <!-- Main Gameplay Container -->
+    <div id="screen-game" class="screen-panel hidden">
+      <div class="game-layout">
+        <!-- Left Sidebar: Hold & Mode Info -->
+        <div class="sidebar side-left">
+          <div class="hud-panel hold-box">
+            <span class="hud-title">HOLD</span>
+            <canvas id="holdCanvas" width="100" height="100"></canvas>
+            <span class="sub-tip">[C] SWAP</span>
+          </div>
+
+          <div class="hud-panel mode-box">
+            <span class="hud-title">MODE</span>
+            <span id="hud-mode-name" class="hud-val highlight">CLASSIC</span>
+            <div id="hud-target-wrap" class="target-sub-box">
+              <span class="hud-sub-title" id="hud-target-label">GOAL</span>
+              <span id="hud-target-val" class="hud-val-sm">--</span>
+            </div>
+          </div>
+
+          <div class="hud-panel">
+            <span class="hud-title">TIME</span>
+            <span id="hud-time" class="hud-val">00:00</span>
+          </div>
+        </div>
+
+        <!-- Center: Main Board Canvas + Overlays -->
+        <div class="board-wrapper">
+          <canvas id="boardCanvas" width="300" height="600"></canvas>
+
+          <!-- In-Game Popups & Banners -->
+          <div id="hud-banner" class="hud-banner-msg hidden">LEVEL UP!</div>
+          <div id="hud-combo" class="hud-combo-tag hidden">COMBO x2!</div>
+        </div>
+
+        <!-- Right Sidebar: Next Pieces, Score & Stats -->
+        <div class="sidebar side-right">
+          <div class="hud-panel next-box">
+            <span class="hud-title">NEXT</span>
+            <canvas id="nextCanvas" width="100" height="180"></canvas>
+          </div>
+
+          <div class="hud-panel score-box">
+            <span class="hud-title">SCORE</span>
+            <span id="hud-score" class="hud-val gold">000000</span>
+            <span class="hud-sub-title">TOP</span>
+            <span id="hud-hiscore" class="hud-val-sm">000000</span>
+          </div>
+
+          <div class="hud-panel">
+            <span class="hud-title">LEVEL</span>
+            <span id="hud-level" class="hud-val">01</span>
+          </div>
+
+          <div class="hud-panel">
+            <span class="hud-title">LINES</span>
+            <span id="hud-lines" class="hud-val">000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Virtual Touchpad for Mobile / Tablet -->
+      <div id="touch-controls" class="touch-bar">
+        <div class="touch-group">
+          <button class="t-btn" id="t-left">◀</button>
+          <button class="t-btn" id="t-right">▶</button>
+          <button class="t-btn" id="t-down">▼</button>
+        </div>
+        <div class="touch-group">
+          <button class="t-btn t-btn-action" id="t-rot-ccw">↺</button>
+          <button class="t-btn t-btn-action" id="t-rot-cw">↻</button>
+          <button class="t-btn t-btn-hold" id="t-hold">HOLD</button>
+          <button class="t-btn t-btn-drop" id="t-drop">DROP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Overlay Modal -->
+    <div id="modal-pause" class="modal-layer hidden">
+      <div class="modal-card">
+        <h2 class="modal-title">GAME PAUSED</h2>
+        <div class="modal-btn-list">
+          <button class="retro-btn btn-primary" id="btn-pause-resume">RESUME (P)</button>
+          <button class="retro-btn" id="btn-pause-restart">RESTART (R)</button>
+          <button class="retro-btn" id="btn-pause-menu">QUIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over / Victory Modal -->
+    <div id="modal-gameover" class="modal-layer hidden">
+      <div class="modal-card">
+        <h2 class="modal-title" id="go-title">GAME OVER</h2>
+        <p class="modal-subtitle" id="go-subtitle">BOARD OVERFLOW</p>
+        
+        <div class="stats-summary">
+          <div class="stat-row"><span>FINAL SCORE:</span><span id="go-score" class="gold">0</span></div>
+          <div class="stat-row"><span>LINES CLEARED:</span><span id="go-lines">0</span></div>
+          <div class="stat-row"><span>HIGHEST LEVEL:</span><span id="go-level">1</span></div>
+          <div class="stat-row"><span>MAX COMBO:</span><span id="go-combo">x0</span></div>
+          <div class="stat-row"><span>GAME DURATION:</span><span id="go-time">00:00</span></div>
+        </div>
+
+        <div id="hi-score-prompt" class="hi-score-entry hidden">
+          <p class="new-hi-tag">★ NEW HIGH SCORE! ★</p>
+          <input type="text" id="player-name-input" maxlength="10" placeholder="ENTER NAME" value="PLAYER 1">
+        </div>
+
+        <div class="modal-btn-list">
+          <button class="retro-btn btn-primary" id="btn-go-retry">PLAY AGAIN</button>
+          <button class="retro-btn" id="btn-go-menu">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

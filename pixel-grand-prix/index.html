@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel Grand Prix - Retro Racing Simulation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Main 3D Canvas -->
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <!-- CRT Scanline Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- UI: HUD Layer -->
+    <div id="hud-layer" class="screen-overlay hidden">
+      <!-- Top Status Bar -->
+      <div class="hud-top">
+        <div class="hud-card">
+          <span class="hud-label">POS</span>
+          <span id="hud-pos" class="hud-val gold">1/6</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">LAP</span>
+          <span id="hud-lap" class="hud-val">1/3</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">TIME</span>
+          <span id="hud-time" class="hud-val">00:00.000</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">BEST</span>
+          <span id="hud-best-lap" class="hud-val">--:--.---</span>
+        </div>
+      </div>
+
+      <!-- Tactical Feedback Alerts -->
+      <div id="hud-alerts">
+        <div id="hud-draft-banner" class="tactical-banner hidden">⚡ SLIPSTREAM DRAFTING +15%</div>
+        <div id="hud-technique-banner" class="tactical-banner green hidden">CLEAN APEX +300</div>
+        <div id="hud-warning-banner" class="tactical-banner red hidden">⚠️ LOW FUEL - PIT NOW</div>
+      </div>
+
+      <!-- Minimap Radar -->
+      <div class="minimap-container">
+        <canvas id="minimapCanvas" width="130" height="130"></canvas>
+      </div>
+
+      <!-- Bottom Status Bar -->
+      <div class="hud-bottom">
+        <div class="telemetry-box">
+          <div class="tele-row">
+            <span class="tele-label">FUEL</span>
+            <div class="bar-frame"><div id="hud-fuel-bar" class="bar-fill blue" style="width: 100%;"></div></div>
+            <span id="hud-fuel-text" class="tele-num">100%</span>
+          </div>
+          <div class="tele-row">
+            <span class="tele-label">GRIP</span>
+            <div class="bar-frame"><div id="hud-grip-bar" class="bar-fill green" style="width: 100%;"></div></div>
+            <span id="hud-grip-text" class="tele-num">100%</span>
+          </div>
+          <div class="tele-row">
+            <span class="tele-label">DMG</span>
+            <div class="bar-frame"><div id="hud-dmg-bar" class="bar-fill red" style="width: 0%;"></div></div>
+            <span id="hud-dmg-text" class="tele-num">0%</span>
+          </div>
+        </div>
+
+        <!-- Speedometer & Tachometer -->
+        <div class="speedo-box">
+          <div class="speed-main">
+            <span id="hud-speed" class="speed-digit">0</span>
+            <span class="speed-unit">KM/H</span>
+          </div>
+          <div class="gear-display">GEAR <span id="hud-gear">1</span></div>
+          <div class="rpm-bar-container">
+            <div id="hud-rpm-bar" class="rpm-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI: Countdown Overlay -->
+    <div id="countdown-overlay" class="center-banner hidden">
+      <div id="countdown-text" class="countdown-pop">3</div>
+    </div>
+
+    <!-- UI: Pit Stop Modal -->
+    <div id="screen-pit" class="screen-layer hidden">
+      <div class="modal-box pit-box">
+        <h2 class="neon-title cyan">⚡ PIT LANE SERVICE ⚡</h2>
+        <p class="sub-text">Pneumatic jacks engaged. Select priority service:</p>
+        <div class="pit-actions">
+          <button class="menu-btn" id="btn-pit-refuel">⛽ REFUEL TANK (+100%)</button>
+          <button class="menu-btn" id="btn-pit-tires">🏎️ FRESH TIRES (GRIP 100%)</button>
+          <button class="menu-btn" id="btn-pit-repair">🔧 REPAIR CHASSIS (DMG 0%)</button>
+          <button class="menu-btn gold-btn" id="btn-pit-all">⚡ FULL PIT SERVICE (ALL)</button>
+        </div>
+        <div id="pit-timer-bar" class="pit-progress hidden"><div id="pit-progress-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- UI: Main Menu -->
+    <div id="screen-main" class="screen-layer">
+      <div class="title-container">
+        <h1 class="main-title">PIXEL GRAND PRIX</h1>
+        <h3 class="subtitle">RETRO RACING SIMULATION</h3>
+        <p class="tagline">SPEED • CORNERING • STRATEGY • PIT MANAGEMENT</p>
+      </div>
+      <div class="menu-list">
+        <button class="menu-btn" id="btn-quick-race">START RACE</button>
+        <button class="menu-btn" id="btn-garage">CAR GARAGE</button>
+        <button class="menu-btn" id="btn-track-select">TRACK SELECT</button>
+        <button class="menu-btn" id="btn-championship">CHAMPIONSHIP</button>
+        <button class="menu-btn" id="btn-how-to">HOW TO PLAY</button>
+      </div>
+      <div class="footer-credit">100% VANILLA JS PSEUDO-3D SIMULATION ENGINE</div>
+    </div>
+
+    <!-- UI: Garage Screen -->
+    <div id="screen-garage" class="screen-layer hidden">
+      <h2 class="neon-title">COMMISSION GARAGE</h2>
+      <div class="garage-viewport">
+        <div class="car-carousel">
+          <button class="arrow-btn" id="btn-prev-car">◀</button>
+          <div class="car-preview-display">
+            <canvas id="carPreviewCanvas" width="280" height="150"></canvas>
+            <h3 id="garage-car-name" class="car-title">Pixel GT</h3>
+            <span id="garage-car-class" class="car-tag">BALANCED RACER</span>
+          </div>
+          <button class="arrow-btn" id="btn-next-car">▶</button>
+        </div>
+        <div class="specs-grid">
+          <div class="spec-row"><span>TOP SPEED</span><div class="bar-frame"><div id="stat-speed" class="bar-fill orange"></div></div></div>
+          <div class="spec-row"><span>ACCELERATION</span><div class="bar-frame"><div id="stat-accel" class="bar-fill orange"></div></div></div>
+          <div class="spec-row"><span>HANDLING</span><div class="bar-frame"><div id="stat-handling" class="bar-fill orange"></div></div></div>
+          <div class="spec-row"><span>BRAKING</span><div class="bar-frame"><div id="stat-braking" class="bar-fill orange"></div></div></div>
+          <div class="spec-row"><span>TIRE GRIP</span><div class="bar-frame"><div id="stat-grip" class="bar-fill orange"></div></div></div>
+          <div class="spec-row"><span>FUEL TANK</span><div class="bar-frame"><div id="stat-fuel" class="bar-fill orange"></div></div></div>
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="menu-btn gold-btn" id="btn-confirm-car">SELECT MACHINE</button>
+        <button class="menu-btn" id="btn-garage-back">BACK</button>
+      </div>
+    </div>
+
+    <!-- UI: Track Selection Screen -->
+    <div id="screen-tracks" class="screen-layer hidden">
+      <h2 class="neon-title">GRAND PRIX CIRCUITS</h2>
+      <div class="track-grid">
+        <div class="track-card active" data-track="0">
+          <h3>SUNSET CIRCUIT</h3>
+          <p>Wide sweeping curves through coastal palms.</p>
+          <span class="track-meta">LAPS: 3 | DIFFICULTY: EASY</span>
+        </div>
+        <div class="track-card" data-track="1">
+          <h3>MOUNTAIN RUN</h3>
+          <p>Severe elevation drops & hairpin switchbacks.</p>
+          <span class="track-meta">LAPS: 3 | DIFFICULTY: HARD</span>
+        </div>
+        <div class="track-card" data-track="2">
+          <h3>NEON CITY</h3>
+          <p>Technical 90° night turns under skyscraper lights.</p>
+          <span class="track-meta">LAPS: 4 | DIFFICULTY: MEDIUM</span>
+        </div>
+        <div class="track-card" data-track="3">
+          <h3>DESERT RALLY</h3>
+          <p>Long high-speed sand straights with loose traction.</p>
+          <span class="track-meta">LAPS: 3 | DIFFICULTY: MEDIUM</span>
+        </div>
+        <div class="track-card" data-track="4">
+          <h3>GRAND PRIX CIRCUIT</h3>
+          <p>Full GP championship course with technical chicanes.</p>
+          <span class="track-meta">LAPS: 5 | DIFFICULTY: EXPERT</span>
+        </div>
+      </div>
+      <div class="button-row">
+        <button class="menu-btn gold-btn" id="btn-start-selected-track">ENTER RACE</button>
+        <button class="menu-btn" id="btn-tracks-back">BACK</button>
+      </div>
+    </div>
+
+    <!-- UI: Championship Standings Screen -->
+    <div id="screen-championship" class="screen-layer hidden">
+      <h2 class="neon-title gold">🏆 WORLD CHAMPIONSHIP STANDINGS</h2>
+      <div class="standings-box">
+        <table class="standings-table">
+          <thead>
+            <tr><th>POS</th><th>DRIVER</th><th>MACHINE</th><th>PTS</th></tr>
+          </thead>
+          <tbody id="championship-table-body">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+      <div class="button-row">
+        <button class="menu-btn gold-btn" id="btn-champ-next">NEXT ROUND</button>
+        <button class="menu-btn" id="btn-champ-quit">ABORT TOUR</button>
+      </div>
+    </div>
+
+    <!-- UI: How To Play -->
+    <div id="screen-how-to" class="screen-layer hidden">
+      <h2 class="neon-title">TACTICAL DRIVING BRIEFING</h2>
+      <div class="manual-columns">
+        <div class="manual-col">
+          <h3>CONTROLS</h3>
+          <p><strong>W / ▲:</strong> Throttle / Accelerate</p>
+          <p><strong>S / ▼:</strong> Brake / Reverse</p>
+          <p><strong>A / D or ◀ / ▶:</strong> Steering Precision</p>
+          <p><strong>SPACE:</strong> Handbrake Drift</p>
+          <p><strong>P:</strong> Pause Engine | <strong>R:</strong> Quick Reset</p>
+        </div>
+        <div class="manual-col">
+          <h3>SIMULATION STRATEGY</h3>
+          <p>• <strong>Apex Cornering:</strong> Brake before turns. Corner scrub reduces speed.</p>
+          <p>• <strong>Slipstream (Drafting):</strong> Follow within 0.5s of an opponent for a +15% top-speed draft.</p>
+          <p>• <strong>Grip Management:</strong> Aggressive drifting wears tires down. Low grip reduces cornering power.</p>
+          <p>• <strong>Pit Lane Strategy:</strong> Pull into the right apron near the start/finish straight to refuel and restore tires.</p>
+        </div>
+      </div>
+      <button class="menu-btn" id="btn-how-back">RETURN</button>
+    </div>
+
+    <!-- UI: Pause Screen -->
+    <div id="screen-pause" class="screen-layer hidden">
+      <h2 class="neon-title cyan">RACE PAUSED</h2>
+      <div class="menu-list">
+        <button class="menu-btn" id="btn-resume">RESUME RACE</button>
+        <button class="menu-btn" id="btn-restart">RESTART</button>
+        <button class="menu-btn" id="btn-quit-race">ABORT TO MENU</button>
+      </div>
+    </div>
+
+    <!-- UI: Results Screen -->
+    <div id="screen-results" class="screen-layer hidden">
+      <h2 class="neon-title" id="results-headline">RACE COMPLETE</h2>
+      <div class="results-card">
+        <div class="results-stat-row"><span>FINAL POSITION:</span><span id="res-pos" class="gold">1ST</span></div>
+        <div class="results-stat-row"><span>TOTAL TIME:</span><span id="res-time">02:14.821</span></div>
+        <div class="results-stat-row"><span>BEST LAP:</span><span id="res-best">00:44.210</span></div>
+        <div class="results-stat-row"><span>OVERTAKES:</span><span id="res-overtakes">7</span></div>
+        <div class="results-stat-row"><span>FUEL REMAINING:</span><span id="res-fuel">48%</span></div>
+        <div class="results-stat-row"><span>BODY DAMAGE:</span><span id="res-dmg">12%</span></div>
+        <div class="results-stat-row gold-highlight"><span>RACE POINTS:</span><span id="res-points">+25 PTS</span></div>
+      </div>
+      <div class="button-row">
+        <button class="menu-btn gold-btn" id="btn-res-next">CONTINUE</button>
+        <button class="menu-btn" id="btn-res-retry">RETRY RACE</button>
+        <button class="menu-btn" id="btn-res-menu">MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- Virtual Touch Controls for Mobile/Tablet -->
+    <div id="touch-controls" class="touch-layer">
+      <div class="touch-cluster-left">
+        <button class="touch-btn" id="t-left">◀</button>
+        <button class="touch-btn" id="t-right">▶</button>
+      </div>
+      <div class="touch-cluster-right">
+        <button class="touch-btn touch-hb" id="t-hb">HANDBRAKE</button>
+        <div class="touch-pedals">
+          <button class="touch-btn touch-brake" id="t-brake">BRAKE</button>
+          <button class="touch-btn touch-gas" id="t-gas">GAS</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

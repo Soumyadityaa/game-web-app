@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Retro Platform Adventure</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <canvas id="gameCanvas" aria-label="Retro Platform Adventure game"></canvas>
+
+    <div id="menuScreen" class="overlay active">
+      <div class="panel">
+        <div class="pixel-title">RETRO PLATFORM<br>ADVENTURE</div>
+        <p class="subtitle">An original 8-bit inspired browser platformer</p>
+        <button id="startBtn">START GAME</button>
+        <button id="howBtn">HOW TO PLAY</button>
+        <button id="soundBtn">SOUND: ON</button>
+        <p class="hint">Works with keyboard or touch controls</p>
+      </div>
+    </div>
+
+    <div id="howScreen" class="overlay">
+      <div class="panel compact">
+        <h2>HOW TO PLAY</h2>
+        <p><b>Move:</b> ← / → or A / D</p>
+        <p><b>Jump:</b> Space / W / ↑</p>
+        <p><b>Pause:</b> P</p>
+        <p><b>Restart:</b> R</p>
+        <p>Collect coins, stomp enemies, grab power-ups and reach the flag.</p>
+        <p>Three levels get progressively harder. You have 3 lives.</p>
+        <button id="backBtn">BACK</button>
+      </div>
+    </div>
+
+    <div id="pauseScreen" class="overlay">
+      <div class="panel compact">
+        <h2>PAUSED</h2>
+        <p>Press P or tap Resume to continue.</p>
+        <button id="resumeBtn">RESUME</button>
+        <button id="pauseRestartBtn">RESTART</button>
+      </div>
+    </div>
+
+    <div id="completeScreen" class="overlay">
+      <div class="panel compact">
+        <h2 id="completeTitle">LEVEL COMPLETE!</h2>
+        <p id="completeStats"></p>
+        <button id="nextBtn">NEXT LEVEL</button>
+      </div>
+    </div>
+
+    <div id="gameOverScreen" class="overlay">
+      <div class="panel compact">
+        <h2>GAME OVER</h2>
+        <p id="gameOverStats"></p>
+        <button id="gameOverRestartBtn">RESTART GAME</button>
+        <button id="gameOverMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="victoryScreen" class="overlay">
+      <div class="panel compact">
+        <h2>YOU WIN!</h2>
+        <p id="victoryStats"></p>
+        <p>All three stages conquered!</p>
+        <button id="victoryRestartBtn">PLAY AGAIN</button>
+        <button id="victoryMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="touchControls" aria-hidden="true">
+      <div class="touch-left-right">
+        <button class="touch-btn" data-control="left">◀</button>
+        <button class="touch-btn" data-control="right">▶</button>
+      </div>
+      <button class="touch-btn jump-btn" data-control="jump">JUMP</button>
+    </div>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>

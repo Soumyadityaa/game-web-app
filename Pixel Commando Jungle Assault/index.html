@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel Commando: Jungle Assault</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Main Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+    <!-- CRT Scanline & Screen FX Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud" class="ui-layer hidden">
+      <div class="hud-top">
+        <div class="hud-box">
+          <span class="label">SCORE</span>
+          <span id="hud-score" class="val">000000</span>
+        </div>
+        <div class="hud-box">
+          <span class="label">LIVES</span>
+          <span id="hud-lives" class="val">3</span>
+        </div>
+        <div class="hud-box hp-box">
+          <span class="label">HP</span>
+          <div class="bar-container">
+            <div id="hud-hp-bar" class="bar-fill"></div>
+          </div>
+        </div>
+        <div class="hud-box">
+          <span class="label" id="hud-weapon-name">BLASTER</span>
+          <span id="hud-ammo" class="val">∞</span>
+        </div>
+        <div class="hud-box">
+          <span class="label">GRENADES</span>
+          <span id="hud-grenades" class="val">x3</span>
+        </div>
+        <div class="hud-box">
+          <span class="label">STAGE</span>
+          <span id="hud-stage" class="val">1-1</span>
+        </div>
+      </div>
+
+      <div class="hud-mid">
+        <div id="hud-combo" class="combo-banner hidden">COMBO x2!</div>
+        <div id="hud-checkpoint" class="banner-msg hidden">CHECKPOINT REACHED!</div>
+      </div>
+
+      <div id="hud-boss" class="boss-hud hidden">
+        <div id="hud-boss-name" class="boss-name">IRON BEETLE</div>
+        <div class="boss-bar-container">
+          <div id="hud-boss-hp-bar" class="boss-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UI Screen: Main Menu -->
+    <div id="screen-main-menu" class="screen-layer">
+      <div class="title-wrap">
+        <h1 class="game-title">PIXEL COMMANDO</h1>
+        <h2 class="game-subtitle">JUNGLE ASSAULT</h2>
+        <p class="tagline">A RETRO RUN-AND-GUN ADVENTURE</p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-start-game">START GAME</button>
+        <button class="btn" id="btn-char-select">SELECT CHARACTER</button>
+        <button class="btn" id="btn-level-select">LEVEL SELECT</button>
+        <button class="btn" id="btn-how-to-play">HOW TO PLAY</button>
+      </div>
+      <div class="credits">ORIGINAL RETRO RUN-AND-GUN SIMULATION</div>
+    </div>
+
+    <!-- UI Screen: Character Select -->
+    <div id="screen-char-select" class="screen-layer hidden">
+      <h2 class="screen-title">SELECT COMMANDO</h2>
+      <div class="char-grid">
+        <div class="char-card active" data-char="0">
+          <div class="char-avatar" id="avatar-rex"></div>
+          <h3>REX</h3>
+          <p>Balanced Commando</p>
+          <div class="char-stats">HP: ★★★☆ | SPD: ★★★☆</div>
+        </div>
+        <div class="char-card" data-char="1">
+          <div class="char-avatar" id="avatar-valkyrie"></div>
+          <h3>VALKYRIE</h3>
+          <p>Recon Specialist</p>
+          <div class="char-stats">HP: ★★☆☆ | SPD: ★★★★</div>
+        </div>
+        <div class="char-card" data-char="2">
+          <div class="char-avatar" id="avatar-tank"></div>
+          <h3>GRIZZLY</h3>
+          <p>Heavy Armored</p>
+          <div class="char-stats">HP: ★★★★ | SPD: ★★☆☆</div>
+        </div>
+      </div>
+      <button class="btn" id="btn-char-confirm">CONFIRM SELECTION</button>
+      <button class="btn btn-back" id="btn-char-back">BACK</button>
+    </div>
+
+    <!-- UI Screen: Level Select -->
+    <div id="screen-level-select" class="screen-layer hidden">
+      <h2 class="screen-title">MISSION ARCHIVE</h2>
+      <div class="level-grid">
+        <button class="level-card active" data-lvl="0">
+          <h3>STAGE 1</h3>
+          <p>Jungle Outpost</p>
+        </button>
+        <button class="level-card" data-lvl="1">
+          <h3>STAGE 2</h3>
+          <p>Enemy Factory</p>
+        </button>
+        <button class="level-card" data-lvl="2">
+          <h3>STAGE 3</h3>
+          <p>Mountain Base</p>
+        </button>
+        <button class="level-card" data-lvl="3">
+          <h3>STAGE 4</h3>
+          <p>Fortress Core</p>
+        </button>
+      </div>
+      <div class="diff-select">
+        <label>DIFFICULTY:</label>
+        <select id="select-difficulty">
+          <option value="easy">EASY</option>
+          <option value="normal" selected>NORMAL</option>
+          <option value="hard">HARD</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-level-launch">DEPLOY NOW</button>
+      <button class="btn btn-back" id="btn-level-back">BACK</button>
+    </div>
+
+    <!-- UI Screen: How To Play -->
+    <div id="screen-how-to" class="screen-layer hidden">
+      <h2 class="screen-title">TACTICAL BRIEFING</h2>
+      <div class="briefing-content">
+        <div class="brief-col">
+          <h3>KEYBOARD CONTROLS</h3>
+          <p><strong>A / D or Arrows:</strong> Move Left / Right</p>
+          <p><strong>W / Up Arrow:</strong> Aim Up / Climb Ladder</p>
+          <p><strong>S / Down Arrow:</strong> Crouch / Aim Down</p>
+          <p><strong>SPACE:</strong> Jump (Hold for high jump)</p>
+          <p><strong>J or Z:</strong> Fire Weapon (8-Way Aiming)</p>
+          <p><strong>K or X:</strong> Throw Explosive Grenade</p>
+          <p><strong>P:</strong> Tactical Pause</p>
+        </div>
+        <div class="brief-col">
+          <h3>SURVIVAL RULES</h3>
+          <p>• Destroy crates for ammo, health, and heavy weapons.</p>
+          <p>• Chain quick enemy eliminations for high Score Combos.</p>
+          <p>• Red barrels explode on hit — use them against mobs!</p>
+          <p>• Aim diagonally with combinations of Move + Up/Down.</p>
+          <p>• Drop into water to swim; tap Jump repeatedly to stay afloat.</p>
+        </div>
+      </div>
+      <button class="btn btn-back" id="btn-how-back">RETURN</button>
+    </div>
+
+    <!-- UI Screen: Pause Menu -->
+    <div id="screen-pause" class="screen-layer hidden">
+      <h2 class="screen-title">MISSION PAUSED</h2>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-pause-resume">RESUME</button>
+        <button class="btn" id="btn-pause-restart">RESTART MISSION</button>
+        <button class="btn btn-back" id="btn-pause-quit">ABORT TO MENU</button>
+      </div>
+    </div>
+
+    <!-- UI Screen: Game Over -->
+    <div id="screen-game-over" class="screen-layer hidden">
+      <h1 class="game-over-title">M.I.A.</h1>
+      <h2 class="screen-subtitle">COMMANDO ELIMINATED</h2>
+      <div class="stats-card">
+        <p>FINAL SCORE: <span id="go-score">000000</span></p>
+        <p>ENEMIES DEFEATED: <span id="go-kills">0</span></p>
+        <p>MAX COMBO: <span id="go-combo">x0</span></p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-go-retry">RETRY MISSION</button>
+        <button class="btn btn-back" id="btn-go-menu">MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- UI Screen: Stage Complete -->
+    <div id="screen-stage-clear" class="screen-layer hidden">
+      <h1 class="clear-title">STAGE CLEAR!</h1>
+      <h2 class="screen-subtitle">SECTOR SECURED</h2>
+      <div class="stats-card">
+        <p>STAGE SCORE: <span id="clear-score">+0000</span></p>
+        <p>TIME BONUS: <span id="clear-time">+0000</span></p>
+        <p>TOTAL SCORE: <span id="clear-total">000000</span></p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-clear-next">NEXT OPERATION</button>
+      </div>
+    </div>
+
+    <!-- UI Screen: Victory / Ending -->
+    <div id="screen-victory" class="screen-layer hidden">
+      <h1 class="victory-title">VICTORY!</h1>
+      <h2 class="screen-subtitle">TITAN CORE OBLITERATED</h2>
+      <p class="victory-desc">The jungle outpost, automated factories, mountain strongholds, and fortress core have been completely liberated.</p>
+      <div class="stats-card">
+        <p>ULTIMATE SCORE: <span id="vic-score">000000</span></p>
+        <p>DIFFICULTY: <span id="vic-diff">NORMAL</span></p>
+      </div>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-vic-menu">MISSION DEBRIEF (MENU)</button>
+      </div>
+    </div>
+
+    <!-- Mobile Virtual Gamepad Controls -->
+    <div id="mobile-controls" class="mobile-ui">
+      <div class="dpad-container">
+        <button class="dpad-btn dpad-up" data-key="ArrowUp">▲</button>
+        <div class="dpad-mid">
+          <button class="dpad-btn dpad-left" data-key="ArrowLeft">◀</button>
+          <div class="dpad-center"></div>
+          <button class="dpad-btn dpad-right" data-key="ArrowRight">▶</button>
+        </div>
+        <button class="dpad-btn dpad-down" data-key="ArrowDown">▼</button>
+      </div>
+
+      <div class="actions-container">
+        <button class="act-btn btn-grenade" data-key="KeyK">G</button>
+        <button class="act-btn btn-jump" data-key="Space">JUMP</button>
+        <button class="act-btn btn-shoot" data-key="KeyJ">FIRE</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

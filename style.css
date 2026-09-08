@@ -1,0 +1,925 @@
+/* ==========================================================================
+   1. RETRO PALETTE & TYPOGRAPHY TOKENS
+   ========================================================================== */
+:root {
+  --font-arcade: 'Press Start 2P', monospace;
+  --font-terminal: 'VT323', monospace;
+  --font-hud: 'Chakra Petch', sans-serif;
+
+  /* Synthwave / 80s Neon Palette */
+  --bg-deep: #070014;
+  --bg-cabinet: #100524;
+  --bg-card: rgba(22, 9, 46, 0.82);
+
+  --neon-pink: #ff007f;
+  --neon-cyan: #00f0ff;
+  --neon-purple: #9d00ff;
+  --neon-yellow: #ffe600;
+  --neon-green: #39ff14;
+
+  --glow-pink: 0 0 12px rgba(255, 0, 127, 0.7);
+  --glow-cyan: 0 0 12px rgba(0, 240, 255, 0.7);
+  --glow-yellow: 0 0 14px rgba(255, 230, 0, 0.7);
+
+  --pixel-border: 2px solid var(--neon-cyan);
+}
+
+/* ==========================================================================
+   2. RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: #fff;
+  font-family: var(--font-hud);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  letter-spacing: 0.05em;
+  -webkit-font-smoothing: pixelated;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.container {
+  width: min(1320px, 94%);
+  margin-inline: auto;
+}
+
+/* ==========================================================================
+   3. ANIMATED 3D SYNTHWAVE HORIZON & GRID BACKGROUND
+   ========================================================================== */
+.synthwave-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #300247 0%, #070014 85%);
+}
+
+.retro-sun {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ff007f 0%, #ffe600 65%, #070014 100%);
+  box-shadow: 0 0 80px rgba(255, 0, 127, 0.8), 0 0 140px rgba(255, 230, 0, 0.4);
+  mask-image: linear-gradient(to bottom, black 50%, transparent 50%, black 55%, transparent 55%, black 62%, transparent 62%, black 72%, transparent 72%, black 85%, transparent 85%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 50%, black 55%, transparent 55%, black 62%, transparent 62%, black 72%, transparent 72%, black 85%, transparent 85%, black 100%);
+}
+
+.retro-horizon {
+  position: absolute;
+  bottom: 45vh;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 25px var(--neon-cyan);
+}
+
+.retro-grid {
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+  width: 200%;
+  height: 48vh;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.25) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(255, 0, 127, 0.3) 2px, transparent 2px);
+  background-size: 60px 40px;
+  transform: perspective(350px) rotateX(65deg);
+  animation: gridScroll 1.4s linear infinite;
+}
+
+@keyframes gridScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 40px; }
+}
+
+/* ==========================================================================
+   4. CRT SCREEN SCANLINE OVERLAY EFFECT
+   ========================================================================== */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), 
+              radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.75) 100%);
+  background-size: 100% 4px, 100% 100%;
+  opacity: 0.85;
+}
+
+body:not(.crt-active) .crt-overlay {
+  display: none;
+}
+
+/* Flicker animation on the whole body when CRT is active */
+body.crt-active::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 16, 16, 0.05);
+  opacity: 0;
+  z-index: 9999;
+  pointer-events: none;
+  animation: crtFlicker 0.15s infinite;
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.03; }
+  50% { opacity: 0.09; }
+  100% { opacity: 0.02; }
+}
+
+/* ==========================================================================
+   5. TICKER & MARQUEE
+   ========================================================================== */
+.retro-marquee-strip {
+  position: relative;
+  z-index: 10;
+  background: #000;
+  border-bottom: 2px solid var(--neon-pink);
+  overflow: hidden;
+  font-family: var(--font-arcade);
+  font-size: 0.65rem;
+  color: var(--neon-yellow);
+  padding: 0.4rem 0;
+  text-shadow: var(--glow-yellow);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 2rem;
+  animation: marqueeRoll 25s linear infinite;
+}
+
+@keyframes marqueeRoll {
+  to { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   6. HEADER & RETRO BRAND
+   ========================================================================== */
+.arcade-header {
+  position: relative;
+  z-index: 10;
+  padding: 2.5rem 0 1.5rem;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.coin-cue {
+  font-family: var(--font-arcade);
+  font-size: 0.65rem;
+  color: var(--neon-green);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.blink {
+  animation: blinkFast 0.8s infinite steps(1);
+}
+
+@keyframes blinkFast {
+  50% { opacity: 0; }
+}
+
+/* RGB Glitch Header Text */
+.arcade-title {
+  font-family: var(--font-arcade);
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: 
+    3px 3px 0 var(--neon-pink), 
+    -3px -3px 0 var(--neon-cyan), 
+    0 0 25px var(--neon-cyan);
+  position: relative;
+  display: inline-block;
+}
+
+.arcade-title::before, .arcade-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+.arcade-title:hover::before {
+  left: -2px;
+  text-shadow: -2px 0 var(--neon-pink);
+  animation: glitch-anim-1 0.4s infinite linear alternate-reverse;
+}
+
+.arcade-title:hover::after {
+  left: 2px;
+  text-shadow: 2px 0 var(--neon-cyan);
+  animation: glitch-anim-2 0.4s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(10px, 9999px, 34px, 0); }
+  50% { clip: rect(60px, 9999px, 85px, 0); }
+  100% { clip: rect(25px, 9999px, 50px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(70px, 9999px, 90px, 0); }
+  50% { clip: rect(15px, 9999px, 35px, 0); }
+  100% { clip: rect(45px, 9999px, 60px, 0); }
+}
+
+.cabinet-sub {
+  font-family: var(--font-terminal);
+  font-size: 1.25rem;
+  color: var(--neon-cyan);
+  margin-top: 0.4rem;
+  text-shadow: 0 0 8px var(--neon-cyan);
+}
+
+/* Quick Control Toggles */
+.arcade-quick-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.retro-toggle-btn {
+  background: #000;
+  border: 2px solid #54627d;
+  color: #a8b8d0;
+  font-family: var(--font-arcade);
+  font-size: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.retro-toggle-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--neon-pink);
+  border-color: var(--neon-pink);
+  color: #fff;
+}
+
+.retro-toggle-btn.active {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+}
+
+.btn-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #444;
+}
+
+.retro-toggle-btn.active .btn-led {
+  background: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+}
+
+.status-counter-box {
+  background: #000;
+  border: 2px solid var(--neon-yellow);
+  padding: 0.45rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--glow-yellow);
+}
+
+.stat-tag {
+  font-family: var(--font-terminal);
+  font-size: 0.85rem;
+  color: var(--neon-yellow);
+}
+
+.stat-number {
+  font-family: var(--font-arcade);
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* ==========================================================================
+   7. CONTROLS (TERMINAL SEARCH & CATEGORIES)
+   ========================================================================== */
+.controls-section {
+  position: relative;
+  z-index: 10;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.search-terminal {
+  position: relative;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3), inset 0 0 10px rgba(0, 240, 255, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 1rem;
+  max-width: 680px;
+}
+
+.terminal-prompt {
+  font-family: var(--font-arcade);
+  font-size: 0.8rem;
+  color: var(--neon-pink);
+  margin-right: 0.8rem;
+  user-select: none;
+}
+
+.retro-search-input {
+  background: transparent;
+  border: none;
+  color: var(--neon-cyan);
+  font-family: var(--font-terminal);
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  width: 100%;
+  outline: none;
+}
+
+.retro-search-input::placeholder {
+  color: rgba(0, 240, 255, 0.4);
+}
+
+.terminal-clear {
+  background: none;
+  border: none;
+  color: var(--neon-pink);
+  font-family: var(--font-arcade);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Category Filter Badges */
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.filter-btn {
+  background: #0d041e;
+  border: 2px solid #372061;
+  color: #b7a4db;
+  font-family: var(--font-arcade);
+  font-size: 0.6rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+  box-shadow: 3px 3px 0 #000;
+}
+
+.filter-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--neon-pink);
+}
+
+.filter-btn.active {
+  background: var(--neon-cyan);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 20px var(--neon-cyan), 4px 4px 0 var(--neon-pink);
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   8. GAME CARDS & NEON ARCADE CABINETS
+   ========================================================================== */
+.main-content {
+  position: relative;
+  z-index: 10;
+  padding: 2rem 0 5rem;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.arcade-card {
+  background: var(--bg-card);
+  border: 2px solid #4a1f87;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 12px rgba(157, 0, 255, 0.2);
+  transition: transform 0.3s cubic-bezier(0.1, 0.8, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Cabinet Corner Accents */
+.arcade-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-yellow));
+  z-index: 2;
+}
+
+.arcade-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.5), 0 0 50px rgba(255, 0, 127, 0.3);
+}
+
+/* Card Visual Header */
+.card-screen-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
+  border-bottom: 2px solid #372061;
+}
+
+.card-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.arcade-card:hover .card-thumbnail {
+  transform: scale(1.08);
+  filter: contrast(1.15) brightness(1.1);
+}
+
+/* Scan Bar Sweeper on Hover */
+.card-screen-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 240, 255, 0.25) 50%, transparent 100%);
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.arcade-card:hover .card-screen-wrap::after {
+  animation: scanBarSweep 1.2s ease-in-out infinite;
+}
+
+@keyframes scanBarSweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.card-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, #130327 0, #130327 15px, #200742 15px, #200742 30px);
+  gap: 0.5rem;
+}
+
+.fallback-glyph {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 15px var(--neon-pink));
+  animation: floatGlyph 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes floatGlyph {
+  0% { transform: translateY(3px) rotate(-3deg); }
+  100% { transform: translateY(-3px) rotate(3deg); }
+}
+
+.fallback-tag {
+  font-family: var(--font-arcade);
+  font-size: 0.6rem;
+  color: var(--neon-yellow);
+  text-shadow: var(--glow-yellow);
+}
+
+/* Card Body */
+.card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-meta-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.pixel-pill {
+  font-family: var(--font-arcade);
+  font-size: 0.55rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 2px;
+  background: #000;
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+}
+
+.cartridge-id {
+  font-family: var(--font-terminal);
+  font-size: 1.1rem;
+  color: #7b6899;
+}
+
+.card-title {
+  font-family: var(--font-arcade);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #fff;
+  margin-bottom: 0.6rem;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.arcade-card:hover .card-title {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.card-description {
+  font-family: var(--font-hud);
+  font-size: 0.85rem;
+  color: #b3a6cc;
+  line-height: 1.45;
+  margin-bottom: 1.4rem;
+  flex-grow: 1;
+}
+
+/* Retro Insert Coin Play Button */
+.btn-arcade-play {
+  background: linear-gradient(90deg, #ff007f 0%, #b000ff 100%);
+  color: #fff;
+  font-family: var(--font-arcade);
+  font-size: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 2px solid #fff;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000, 0 0 15px rgba(255, 0, 127, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-arcade-play:hover {
+  transform: translate(-3px, -3px);
+  background: linear-gradient(90deg, #00f0ff 0%, #39ff14 100%);
+  color: #000;
+  border-color: #000;
+  box-shadow: 6px 6px 0 var(--neon-yellow), 0 0 25px var(--neon-cyan);
+}
+
+.btn-arcade-play:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* ==========================================================================
+   9. AUTHENTIC CRT TURN-ON / TURN-OFF MODAL
+   ========================================================================== */
+.retro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.retro-modal[hidden] {
+  display: none !important;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 1, 15, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+/* Heavy Arcade Bezel Frame */
+.crt-monitor-bezel {
+  position: relative;
+  z-index: 2;
+  width: min(1200px, 98%);
+  height: min(840px, 92vh);
+  background: #14161c;
+  border: 6px solid #2e3342;
+  border-radius: 18px;
+  box-shadow: 
+    inset 0 0 30px #000, 
+    0 0 50px rgba(0, 240, 255, 0.4), 
+    0 25px 80px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* CRT Turn-On Explosion Animation */
+.crt-monitor-bezel.crt-power-on {
+  animation: crtTurnOn 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* CRT TV Turn-Off Line Collapse Animation */
+.crt-monitor-bezel.crt-power-off {
+  animation: crtTurnOff 0.35s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes crtTurnOn {
+  0% { transform: scale(0.01, 0.002); opacity: 0; filter: brightness(30); }
+  50% { transform: scale(1, 0.005); opacity: 1; filter: brightness(10); }
+  100% { transform: scale(1, 1); opacity: 1; filter: brightness(1); }
+}
+
+@keyframes crtTurnOff {
+  0% { transform: scale(1, 1); opacity: 1; filter: brightness(1); }
+  45% { transform: scale(1, 0.006); opacity: 0.9; filter: brightness(8); }
+  100% { transform: scale(0, 0); opacity: 0; filter: brightness(30); }
+}
+
+/* Bezel Screws */
+.bezel-screw {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #474f63;
+  box-shadow: inset 1px 1px 2px #000;
+  z-index: 10;
+}
+.bezel-screw.top-left { top: 10px; left: 10px; }
+.bezel-screw.top-right { top: 10px; right: 10px; }
+.bezel-screw.bottom-left { bottom: 10px; left: 10px; }
+.bezel-screw.bottom-right { bottom: 10px; right: 10px; }
+
+/* Monitor Header */
+.monitor-header {
+  background: #0c0e14;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid #2e3342;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.monitor-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.monitor-title {
+  font-family: var(--font-arcade);
+  font-size: 0.85rem;
+  color: var(--neon-yellow);
+  text-shadow: var(--glow-yellow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monitor-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.monitor-action-btn {
+  background: #000;
+  border: 2px solid #54627d;
+  color: #fff;
+  font-family: var(--font-arcade);
+  font-size: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.monitor-action-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.monitor-action-btn.close-btn:hover {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--neon-pink);
+}
+
+/* CRT Screen Inner Viewport */
+.crt-screen-inner {
+  position: relative;
+  flex-grow: 1;
+  background: #000;
+  overflow: hidden;
+}
+
+.crt-screen-inner iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.monitor-scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Floppy Disk Loader Overlay */
+.loader-chime {
+  position: absolute;
+  inset: 0;
+  background: #040108;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  z-index: 6;
+  transition: opacity 0.3s ease;
+}
+
+.loader-chime.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pixel-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px dashed var(--neon-pink);
+  border-top-color: var(--neon-cyan);
+  animation: spin 0.8s steps(8) infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-glitch {
+  font-family: var(--font-arcade);
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-cyan);
+}
+
+/* Fullscreen Bezel Simulation */
+.crt-monitor-bezel.is-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+}
+
+/* ==========================================================================
+   10. EMPTY STATE & FOOTER
+   ========================================================================== */
+.retro-empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background: rgba(0, 0, 0, 0.85);
+  border: 3px dashed var(--neon-pink);
+  max-width: 600px;
+  margin: 2rem auto;
+  box-shadow: 0 0 30px rgba(255, 0, 127, 0.3);
+}
+
+.empty-pixel-art {
+  font-family: var(--font-arcade);
+  font-size: 1.2rem;
+  color: var(--neon-yellow);
+  margin-bottom: 1rem;
+  animation: bounce 1.5s infinite alternate;
+}
+
+@keyframes bounce {
+  to { transform: translateY(-8px); }
+}
+
+.retro-empty-state h2 {
+  font-family: var(--font-arcade);
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 0.8rem;
+}
+
+.retro-empty-state p {
+  font-family: var(--font-terminal);
+  font-size: 1.2rem;
+  color: var(--neon-cyan);
+  margin-bottom: 1.5rem;
+}
+
+.arcade-btn-small {
+  background: var(--neon-pink);
+  border: 2px solid #fff;
+  color: #fff;
+  font-family: var(--font-arcade);
+  font-size: 0.65rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+.arcade-footer {
+  padding: 3rem 0;
+  text-align: center;
+  font-family: var(--font-arcade);
+  font-size: 0.55rem;
+  color: #7b6899;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-lights {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.footer-lights span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.fl-red { background: var(--neon-pink); box-shadow: var(--glow-pink); }
+.fl-yellow { background: var(--neon-yellow); box-shadow: var(--glow-yellow); }
+.fl-green { background: var(--neon-green); box-shadow: 0 0 8px var(--neon-green); }
+.fl-blue { background: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+
+/* Responsive Viewports */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .arcade-quick-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+  .crt-monitor-bezel {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border-width: 3px;
+  }
+}

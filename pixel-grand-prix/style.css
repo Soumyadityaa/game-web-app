@@ -1,0 +1,604 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,700;1,700&family=Press+Start+2P&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  background: #050508;
+  color: #fff;
+  font-family: 'Chakra Petch', sans-serif;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+#game-container {
+  position: relative;
+  width: 960px;
+  height: 540px;
+  background: #000;
+  border: 4px solid #1a1a2e;
+  box-shadow: 0 0 40px rgba(0, 200, 255, 0.15), 0 0 100px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* CRT Scanline Simulation Overlay */
+.crt-overlay {
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+              linear-gradient(90deg, rgba(255,0,0,0.02), rgba(0,255,0,0.01), rgba(0,0,255,0.02));
+  background-size: 100% 4px, 6px 100%;
+  z-index: 5;
+}
+
+/* Base Modal Overlay Screen */
+.screen-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, rgba(12, 12, 28, 0.94) 0%, rgba(4, 4, 8, 0.98) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  padding: 24px;
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Titles & Neon Text */
+.main-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 34px;
+  color: #ff0055;
+  text-shadow: 3px 3px 0 #00ffff, 0 0 25px rgba(255, 0, 85, 0.7);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #00ffff;
+  letter-spacing: 4px;
+  text-shadow: 2px 2px 0 #ff0055;
+  margin-bottom: 8px;
+}
+
+.tagline {
+  font-size: 11px;
+  color: #8899aa;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+}
+
+.neon-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 20px;
+  color: #ff0055;
+  text-shadow: 2px 2px 0 #00ffff;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+.neon-title.cyan { color: #00ffff; text-shadow: 2px 2px 0 #ff0055; }
+.neon-title.gold { color: #ffbb00; text-shadow: 2px 2px 0 #885500; }
+
+/* Buttons */
+.menu-btn {
+  background: #111422;
+  color: #00ffff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  border: 2px solid #00ffff;
+  padding: 12px 24px;
+  margin: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 3px 3px 0 #ff0055;
+  transition: all 0.1s ease;
+  min-width: 240px;
+}
+.menu-btn:hover {
+  background: #00ffff;
+  color: #000;
+  box-shadow: 0 0 20px #00ffff;
+  transform: translateY(-2px);
+}
+.menu-btn:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0 #ff0055;
+}
+.menu-btn.gold-btn {
+  border-color: #ffbb00;
+  color: #ffbb00;
+  box-shadow: 3px 3px 0 #ff5500;
+}
+.menu-btn.gold-btn:hover {
+  background: #ffbb00;
+  color: #000;
+  box-shadow: 0 0 20px #ffbb00;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-credit {
+  position: absolute;
+  bottom: 12px;
+  font-size: 9px;
+  color: #445566;
+  letter-spacing: 2px;
+}
+
+/* HUD System */
+.screen-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 18px;
+}
+
+.hud-top {
+  display: flex;
+  gap: 12px;
+}
+
+.hud-card {
+  background: rgba(6, 8, 16, 0.8);
+  border: 2px solid #00ffff;
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 2px 0 rgba(0, 255, 255, 0.4);
+}
+
+.hud-label {
+  font-size: 9px;
+  font-family: 'Press Start 2P', monospace;
+  color: #88aacc;
+}
+
+.hud-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+.hud-val.gold { color: #ffbb00; }
+
+/* Tactical Popups */
+#hud-alerts {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.tactical-banner {
+  background: rgba(0, 255, 255, 0.85);
+  color: #000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  padding: 6px 16px;
+  border-radius: 2px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  animation: pulse 0.3s infinite alternate;
+}
+.tactical-banner.green { background: rgba(57, 255, 20, 0.9); box-shadow: 0 0 15px #39ff14; }
+.tactical-banner.red { background: rgba(255, 0, 55, 0.9); color: #fff; box-shadow: 0 0 15px #ff0037; }
+
+/* Minimap Radar */
+.minimap-container {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: rgba(4, 6, 12, 0.85);
+  border: 2px solid #00ffff;
+  box-shadow: 2px 2px 0 #ff0055;
+  padding: 4px;
+}
+
+/* Bottom Telemetry HUD */
+.hud-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.telemetry-box {
+  background: rgba(6, 8, 16, 0.85);
+  border: 2px solid #00ffff;
+  padding: 8px 12px;
+  width: 240px;
+  box-shadow: 2px 2px 0 rgba(0, 255, 255, 0.4);
+}
+
+.tele-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.tele-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #88aacc;
+  width: 44px;
+}
+
+.tele-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  width: 40px;
+  text-align: right;
+}
+
+.bar-frame {
+  flex: 1;
+  height: 8px;
+  background: #111422;
+  border: 1px solid #334466;
+  margin: 0 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.15s ease-out;
+}
+.bar-fill.blue { background: #00ccff; }
+.bar-fill.green { background: #39ff14; }
+.bar-fill.red { background: #ff0055; }
+.bar-fill.orange { background: #ffaa00; }
+
+.speedo-box {
+  background: rgba(6, 8, 16, 0.85);
+  border: 2px solid #ff0055;
+  padding: 8px 16px;
+  text-align: right;
+  box-shadow: 2px 2px 0 #00ffff;
+}
+
+.speed-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+}
+
+.speed-digit {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 2px 2px 0 #ff0055;
+}
+
+.speed-unit {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00ffff;
+  margin-left: 6px;
+}
+
+.gear-display {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: #ffbb00;
+  margin-top: 2px;
+}
+
+.rpm-bar-container {
+  width: 140px;
+  height: 6px;
+  background: #111;
+  border: 1px solid #ff0055;
+  margin-top: 4px;
+}
+
+.rpm-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #39ff14 60%, #ffbb00 85%, #ff0000 100%);
+}
+
+/* Countdown Banner */
+.center-banner {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+  pointer-events: none;
+}
+
+.countdown-pop {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 80px;
+  color: #ffbb00;
+  text-shadow: 6px 6px 0 #ff0055, 0 0 40px #ffbb00;
+}
+
+/* Pit Stop Modal */
+.pit-box {
+  background: rgba(8, 12, 24, 0.96);
+  border: 4px solid #00ffff;
+  padding: 24px;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  max-width: 500px;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: #aaccff;
+  margin-bottom: 16px;
+}
+
+.pit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pit-progress {
+  width: 100%;
+  height: 12px;
+  background: #111;
+  border: 1px solid #00ffff;
+  margin-top: 14px;
+}
+
+#pit-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #39ff14;
+}
+
+/* Garage Viewport */
+.garage-viewport {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  background: rgba(8, 12, 24, 0.7);
+  border: 2px solid #2a3355;
+  padding: 16px 24px;
+  margin-bottom: 12px;
+}
+
+.car-carousel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.arrow-btn {
+  background: #111422;
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  font-size: 18px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.arrow-btn:hover { background: #00ffff; color: #000; }
+
+.car-preview-display {
+  text-align: center;
+}
+
+.car-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #ffbb00;
+  margin-top: 8px;
+}
+
+.car-tag {
+  font-size: 10px;
+  color: #8899aa;
+  letter-spacing: 2px;
+}
+
+.specs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.spec-row span { width: 110px; text-align: left; }
+
+/* Track Selection Grid */
+.track-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 780px;
+  margin-bottom: 12px;
+}
+
+.track-card {
+  background: #0f1322;
+  border: 2px solid #2a3355;
+  padding: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+.track-card.active, .track-card:hover {
+  border-color: #00ffff;
+  background: #162038;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+.track-card h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: #ffbb00;
+  margin-bottom: 6px;
+}
+.track-card p {
+  font-size: 11px;
+  color: #8899aa;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.track-meta {
+  font-size: 9px;
+  color: #00ffff;
+  font-weight: 700;
+}
+
+/* Championship Table */
+.standings-box {
+  background: #0a0d1a;
+  border: 2px solid #ffbb00;
+  padding: 14px;
+  width: 600px;
+  margin-bottom: 16px;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.standings-table th {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: #ffbb00;
+  border-bottom: 1px solid #334466;
+  padding: 6px;
+}
+.standings-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #1a223a;
+  text-align: center;
+}
+
+/* Results Card */
+.results-card {
+  background: #0a0d1a;
+  border: 2px solid #00ffff;
+  padding: 16px 24px;
+  width: 440px;
+  margin-bottom: 16px;
+}
+
+.results-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #1a223a;
+}
+.results-stat-row.gold-highlight {
+  color: #ffbb00;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+/* Manual/How to Play */
+.manual-columns {
+  display: flex;
+  gap: 20px;
+  text-align: left;
+  max-width: 740px;
+  background: rgba(10, 14, 26, 0.85);
+  border: 1px solid #2a3355;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.manual-col { flex: 1; font-size: 12px; line-height: 1.6; }
+.manual-col h3 { font-family: 'Press Start 2P', monospace; font-size: 10px; color: #ffbb00; margin-bottom: 8px; }
+
+/* Virtual Touch Controls */
+.touch-layer {
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 7;
+  padding: 16px;
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  #game-container { width: 100vw; height: 100vh; border: none; }
+  .touch-layer { display: flex; justify-content: space-between; align-items: flex-end; }
+}
+
+.touch-cluster-left, .touch-cluster-right {
+  pointer-events: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.touch-pedals {
+  display: flex;
+  gap: 8px;
+}
+
+.touch-btn {
+  width: 58px;
+  height: 58px;
+  background: rgba(12, 16, 32, 0.75);
+  border: 2px solid #00ffff;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.touch-btn:active { background: #00ffff; color: #000; }
+.touch-gas { height: 72px; background: rgba(0, 150, 80, 0.75); border-color: #39ff14; }
+.touch-brake { height: 72px; background: rgba(180, 20, 40, 0.75); border-color: #ff0055; }
+.touch-hb { font-size: 9px; width: 68px; }
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.06); }
+}

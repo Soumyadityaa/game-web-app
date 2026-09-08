@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Retro Cyber Arcade - 80s/90s Nostalgia Browser Gaming Station" />
+  <title>CYBER ARCADE 1984 // Retro Web Portal</title>
+  
+  <!-- Retro 8-Bit & Arcade Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="crt-active">
+  <!-- CRT Screen Overlay (Scanlines, Vignette, Flicker) -->
+  <div class="crt-overlay" id="crtOverlay" aria-hidden="true"></div>
+
+  <!-- Animated Synthwave 3D Perspective Background -->
+  <div class="synthwave-stage" aria-hidden="true">
+    <div class="retro-sun"></div>
+    <div class="retro-horizon"></div>
+    <div class="retro-grid"></div>
+  </div>
+
+  <!-- Top Retro Marquee Ticker -->
+  <aside class="retro-marquee-strip" aria-label="Arcade News">
+    <div class="marquee-track">
+      <span>★ INSERT COIN TO PLAY ★ HIGH SCORE: 999,990 ★ 6 ARCADE UNITS ONLINE ★ 100% RETRO FEEL ★ READY PLAYER ONE ★ SYSTEM CHECK: OK ★</span>
+      <span>★ INSERT COIN TO PLAY ★ HIGH SCORE: 999,990 ★ 6 ARCADE UNITS ONLINE ★ 100% RETRO FEEL ★ READY PLAYER ONE ★ SYSTEM CHECK: OK ★</span>
+    </div>
+  </aside>
+
+  <!-- Main Arcade Header -->
+  <header class="arcade-header">
+    <div class="header-inner container">
+      <!-- Arcade Brand with Glitch Effect -->
+      <div class="brand-cabinet">
+        <div class="coin-cue"><span class="blink">●</span> INSERT COIN [CREDITS: 99]</div>
+        <h1 class="arcade-title glitch" data-text="CYBER ARCADE">
+          CYBER ARCADE
+        </h1>
+        <div class="cabinet-sub">EST. 1984 // 16-BIT MULTI-GAME SYSTEM</div>
+      </div>
+
+      <!-- Quick Toggles (Audio FX & CRT Display) -->
+      <div class="arcade-quick-controls">
+        <button type="button" id="soundToggleBtn" class="retro-toggle-btn active" title="Toggle 8-Bit Sound Effects">
+          <span class="btn-led"></span> 8-BIT SFX: <span id="soundStatusText">ON</span>
+        </button>
+        <button type="button" id="crtToggleBtn" class="retro-toggle-btn active" title="Toggle CRT Screen Shader">
+          <span class="btn-led"></span> CRT: <span id="crtStatusText">ON</span>
+        </button>
+        <div class="status-counter-box">
+          <span class="stat-tag">ROMS LOADED</span>
+          <span id="gameCountDisplay" class="stat-number">06</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search & Category Filters -->
+  <section class="controls-section container" aria-label="Game Filters">
+    <div class="search-terminal">
+      <span class="terminal-prompt">&gt; SEARCH_</span>
+      <input 
+        type="search" 
+        id="searchInput" 
+        class="retro-search-input" 
+        placeholder="INPUT GAME TITLE OR GENRE..." 
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="button" id="searchClearBtn" class="terminal-clear" hidden>&times;</button>
+    </div>
+
+    <!-- Dynamic Category Filter Buttons -->
+    <nav id="categoryFilters" class="category-filters" aria-label="Game categories">
+      <!-- Generated dynamically by script.js -->
+    </nav>
+  </section>
+
+  <!-- Arcade Cabinets Grid -->
+  <main class="main-content container">
+    <div id="gamesGrid" class="games-grid" aria-live="polite">
+      <!-- Populated dynamically by script.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="retro-empty-state" hidden>
+      <div class="empty-pixel-art">👾 ERROR 404 👾</div>
+      <h2>NO MATCHING CARTRIDGES FOUND</h2>
+      <p>CHECK YOUR TYPING OR RESET THE RADAR SCANNER.</p>
+      <button type="button" id="resetFiltersBtn" class="arcade-btn-small">RESET CARTRIDGE SCAN</button>
+    </div>
+  </main>
+
+  <!-- CRT Arcade Machine Modal -->
+  <div id="gameModal" class="retro-modal" role="dialog" aria-modal="true" aria-labelledby="modalGameTitle" hidden>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="crt-monitor-bezel" id="modalWindow">
+      <!-- Arcade Bezel Screws / Details -->
+      <div class="bezel-screw top-left"></div>
+      <div class="bezel-screw top-right"></div>
+      <div class="bezel-screw bottom-left"></div>
+      <div class="bezel-screw bottom-right"></div>
+
+      <!-- Marquee Bar -->
+      <header class="monitor-header">
+        <div class="monitor-brand">
+          <span id="modalCategoryBadge" class="pixel-pill">GENRE</span>
+          <h2 id="modalGameTitle" class="monitor-title">GAME_TITLE</h2>
+        </div>
+        <div class="monitor-actions">
+          <button type="button" id="fullscreenBtn" class="monitor-action-btn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+            <span class="icon-fs">[ ⛶ FULLSCREEN ]</span>
+          </button>
+          <button type="button" id="closeModalBtn" class="monitor-action-btn close-btn" title="Eject Cartridge (Esc)" aria-label="Close Game">
+            [ ✕ EJECT ]
+          </button>
+        </div>
+      </header>
+
+      <!-- Cathode Ray Tube Display -->
+      <div class="crt-screen-inner" id="modalViewport">
+        <div class="monitor-scanlines" aria-hidden="true"></div>
+        <div class="loader-chime" id="iframeLoader">
+          <div class="pixel-spinner"></div>
+          <p class="loading-glitch">READING FLOPPY DISK SECTOR 00...</p>
+        </div>
+        <iframe 
+          id="gameIframe" 
+          src="about:blank" 
+          title="Game Machine"
+          allow="autoplay; fullscreen; gamepad; keyboard-map *" 
+          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retro Footer -->
+  <footer class="arcade-footer container">
+    <div class="footer-lights">
+      <span class="fl-red"></span><span class="fl-yellow"></span><span class="fl-green"></span><span class="fl-blue"></span>
+    </div>
+    <p>RETRO ARCADE CONTROLLER // READY FOR 100+ CARTRIDGES // 1984 - 2026</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

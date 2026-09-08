@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel City Builder - Retro City Simulation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated Background Canvas for Menu -->
+  <canvas id="skylineCanvas"></canvas>
+
+  <div id="game-app">
+    <!-- Main Menu Screen -->
+    <div id="screen-menu" class="screen-panel">
+      <div class="brand-container">
+        <h1 class="game-logo">PIXEL CITY</h1>
+        <h2 class="game-subtitle">BUILDER</h2>
+        <p class="tagline">PLAN. BUILD. MANAGE. GROW.</p>
+      </div>
+      <div class="menu-nav">
+        <button class="retro-btn btn-primary" id="btn-new-city">NEW CITY</button>
+        <button class="retro-btn" id="btn-load-city">LOAD SAVED CITY</button>
+        <button class="retro-btn" id="btn-challenges">CHALLENGE MODE</button>
+        <button class="retro-btn" id="btn-how-to">HOW TO PLAY</button>
+        <button class="retro-btn" id="btn-settings">SETTINGS</button>
+      </div>
+      <div class="version-tag">VER 1.0 • 100% VANILLA RETRO ENGINE</div>
+    </div>
+
+    <!-- Map Selection Modal -->
+    <div id="modal-map-select" class="modal-layer hidden">
+      <div class="modal-box">
+        <h2 class="modal-title">CHOOSE REGIONAL MAP</h2>
+        <div class="map-grid">
+          <div class="map-card active" data-map="plains">
+            <h3>GREEN PLAINS</h3>
+            <p>Fertile flatlands with a meandering river. Ideal for new mayors.</p>
+            <span class="map-badge">EASY</span>
+          </div>
+          <div class="map-card" data-map="islands">
+            <h3>TWIN ISLANDS</h3>
+            <p>Coastal archipelago requiring bridge networks and smart land use.</p>
+            <span class="map-badge">MEDIUM</span>
+          </div>
+          <div class="map-card" data-map="bay">
+            <h3>METRO BAY</h3>
+            <p>Sprawling coastal coastline surrounded by inland water bodies.</p>
+            <span class="map-badge">HARD</span>
+          </div>
+        </div>
+        <div class="modal-btn-row">
+          <button class="retro-btn btn-primary" id="btn-confirm-map">FOUND CITY</button>
+          <button class="retro-btn" id="btn-cancel-map">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenges Modal -->
+    <div id="modal-challenges" class="modal-layer hidden">
+      <div class="modal-box wide">
+        <h2 class="modal-title">CITY CHALLENGE MISSIONS</h2>
+        <div class="challenge-list" id="challenge-list-container">
+          <!-- Populated dynamically via JS -->
+        </div>
+        <div class="modal-btn-row">
+          <button class="retro-btn btn-primary" id="btn-start-challenge">START MISSION</button>
+          <button class="retro-btn" id="btn-close-challenges">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="modal-how" class="modal-layer hidden">
+      <div class="modal-box wide">
+        <h2 class="modal-title">MAYOR'S HANDBOOK</h2>
+        <div class="manual-columns">
+          <div class="manual-col">
+            <h3>URBAN PLANNING</h3>
+            <p>• <strong>Roads:</strong> All zones & buildings must connect to roads to grow.</p>
+            <p>• <strong>Residential (R):</strong> Houses citizens. Requires power, clean water, and nearby jobs.</p>
+            <p>• <strong>Commercial (C):</strong> Provides shopping, services, and white-collar jobs.</p>
+            <p>• <strong>Industrial (I):</strong> Creates jobs & heavy revenue, but spreads toxic pollution.</p>
+          </div>
+          <div class="manual-col">
+            <h3>INFRASTRUCTURE & BUDGET</h3>
+            <p>• <strong>Utilities:</strong> Power plants produce MW; Water pumps pump supply units. Both spread automatically along road networks.</p>
+            <p>• <strong>Services:</strong> Police lower crime, Fire stations prevent infernos, Hospitals boost health, and Schools educate the workforce.</p>
+            <p>• <strong>Economy:</strong> Adjust tax rates (0–20%). High taxes generate cash but crush city happiness.</p>
+          </div>
+        </div>
+        <button class="retro-btn" id="btn-close-how">RETURN TO MENU</button>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal-layer hidden">
+      <div class="modal-box">
+        <h2 class="modal-title">GAME SETTINGS</h2>
+        <div class="settings-list">
+          <div class="setting-item">
+            <label>SOUND EFFECTS</label>
+            <input type="checkbox" id="chk-sfx" checked>
+          </div>
+          <div class="setting-item">
+            <label>AUDIO VOLUME</label>
+            <input type="range" id="rng-vol" min="0" max="100" value="70">
+          </div>
+          <div class="setting-item">
+            <label>DAY / NIGHT CYCLE</label>
+            <input type="checkbox" id="chk-daynight" checked>
+          </div>
+          <div class="setting-item">
+            <label>RANDOM DISASTERS</label>
+            <input type="checkbox" id="chk-disasters" checked>
+          </div>
+          <div class="setting-item">
+            <label>AUTO-SAVE (MONTHLY)</label>
+            <input type="checkbox" id="chk-autosave" checked>
+          </div>
+        </div>
+        <div class="modal-btn-row">
+          <button class="retro-btn btn-primary" id="btn-save-settings">APPLY</button>
+          <button class="retro-btn" id="btn-close-settings">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Sheet Modal -->
+    <div id="modal-budget" class="modal-layer hidden">
+      <div class="modal-box wide">
+        <h2 class="modal-title">CITY TREASURY & BUDGET</h2>
+        <div class="budget-content">
+          <div class="budget-col">
+            <h3>TAXATION REVENUE (MONTHLY)</h3>
+            <div class="tax-control">
+              <label>RESIDENTIAL TAX: <span id="val-tax-res">9%</span></label>
+              <input type="range" id="rng-tax-res" min="0" max="20" value="9">
+            </div>
+            <div class="tax-control">
+              <label>COMMERCIAL TAX: <span id="val-tax-com">9%</span></label>
+              <input type="range" id="rng-tax-com" min="0" max="20" value="9">
+            </div>
+            <div class="tax-control">
+              <label>INDUSTRIAL TAX: <span id="val-tax-ind">9%</span></label>
+              <input type="range" id="rng-tax-ind" min="0" max="20" value="9">
+            </div>
+            <div class="finance-line highlight">ESTIMATED INCOME: <span id="lbl-budget-income">$0</span></div>
+          </div>
+          <div class="budget-col">
+            <h3>DEPARTMENT EXPENSES</h3>
+            <div class="expense-row"><span>ROADS & TRANSIT:</span><span id="exp-roads">$0</span></div>
+            <div class="expense-row"><span>POLICE DEPARTMENT:</span><span id="exp-police">$0</span></div>
+            <div class="expense-row"><span>FIRE RESCUE:</span><span id="exp-fire">$0</span></div>
+            <div class="expense-row"><span>HEALTHCARE:</span><span id="exp-health">$0</span></div>
+            <div class="expense-row"><span>EDUCATION:</span><span id="exp-edu">$0</span></div>
+            <div class="expense-row"><span>POWER & WATER:</span><span id="exp-utilities">$0</span></div>
+            <div class="expense-row"><span>PARKS & CIVIC:</span><span id="exp-parks">$0</span></div>
+            <div class="finance-line red">TOTAL EXPENSES: <span id="lbl-budget-expenses">$0</span></div>
+          </div>
+        </div>
+        <div class="net-balance-bar">
+          MONTHLY CASH FLOW: <span id="lbl-net-balance" class="green">+$0</span>
+        </div>
+        <div class="modal-btn-row">
+          <button class="retro-btn btn-primary" id="btn-apply-budget">CONFIRM BUDGET</button>
+          <button class="retro-btn" id="btn-close-budget">CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- City Statistics Modal -->
+    <div id="modal-stats" class="modal-layer hidden">
+      <div class="modal-box wide">
+        <h2 class="modal-title">CITY STATISTICS DASHBOARD</h2>
+        <div class="stats-overview-grid">
+          <div class="stat-kpi"><span>POPULATION:</span><strong id="st-pop">0</strong></div>
+          <div class="stat-kpi"><span>JOBS:</span><strong id="st-jobs">0</strong></div>
+          <div class="stat-kpi"><span>LAND VALUE:</span><strong id="st-land">MED</strong></div>
+          <div class="stat-kpi"><span>CRIME RATE:</span><strong id="st-crime">LOW</strong></div>
+          <div class="stat-kpi"><span>POLLUTION:</span><strong id="st-poll">LOW</strong></div>
+          <div class="stat-kpi"><span>HAPPINESS:</span><strong id="st-happy">75%</strong></div>
+        </div>
+        <div class="chart-container">
+          <canvas id="statsChart" width="560" height="180"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-dot green"></span> Population Trend
+          <span class="legend-dot gold"></span> City Treasury ($)
+          <span class="legend-dot cyan"></span> Citizen Happiness
+        </div>
+        <button class="retro-btn" id="btn-close-stats">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Active Gameplay Viewport -->
+    <div id="screen-game" class="screen-panel hidden">
+      <!-- Top Status HUD -->
+      <div id="top-hud">
+        <div class="hud-left">
+          <div class="hud-item gold"><span class="hud-lbl">FUNDS</span><span id="hud-money" class="hud-val">$50,000</span></div>
+          <div class="hud-item"><span class="hud-lbl">POP</span><span id="hud-pop" class="hud-val">0</span></div>
+          <div class="hud-item"><span class="hud-lbl">JOBS</span><span id="hud-jobs" class="hud-val">0</span></div>
+        </div>
+        <div class="hud-center">
+          <div class="hud-item"><span class="hud-lbl">POWER</span><span id="hud-power" class="hud-val">0/0 MW</span></div>
+          <div class="hud-item"><span class="hud-lbl">WATER</span><span id="hud-water" class="hud-val">0/0 U</span></div>
+          <div class="hud-item happy-pill"><span class="hud-lbl">HAPPINESS</span><span id="hud-happy" class="hud-val">75%</span></div>
+        </div>
+        <div class="hud-right">
+          <div class="hud-item date-item"><span id="hud-date" class="hud-val">YEAR 1, JAN</span></div>
+          <div class="time-controls">
+            <button class="time-btn" id="btn-speed-0">❚❚</button>
+            <button class="time-btn active" id="btn-speed-1">1×</button>
+            <button class="time-btn" id="btn-speed-2">2×</button>
+            <button class="time-btn" id="btn-speed-4">4×</button>
+          </div>
+          <button class="hud-icon-btn" id="btn-open-budget" title="Budget">💰</button>
+          <button class="hud-icon-btn" id="btn-open-stats" title="Statistics">📊</button>
+          <button class="hud-icon-btn" id="btn-pause-menu" title="Menu">⚙</button>
+        </div>
+      </div>
+
+      <!-- Main Canvas Viewport -->
+      <div id="viewport-container">
+        <canvas id="cityCanvas"></canvas>
+
+        <!-- Overlay View Selector -->
+        <div id="overlay-bar">
+          <button class="overlay-btn active" data-view="normal">NORMAL</button>
+          <button class="overlay-btn" data-view="traffic">TRAFFIC</button>
+          <button class="overlay-btn" data-view="power">POWER</button>
+          <button class="overlay-btn" data-view="water">WATER</button>
+          <button class="overlay-btn" data-view="pollution">POLLUTION</button>
+          <button class="overlay-btn" data-view="land">LAND VALUE</button>
+          <button class="overlay-btn" data-view="services">SERVICES</button>
+        </div>
+
+        <!-- Objective Tracker Bar -->
+        <div id="objective-banner" class="hidden">
+          <span id="obj-title" class="obj-text">OBJECTIVE: Reach 1,000 Population</span>
+          <div class="obj-bar-frame"><div id="obj-bar-fill"></div></div>
+          <span id="obj-counter" class="obj-count">0 / 1000</span>
+        </div>
+
+        <!-- Disaster Alert Banner -->
+        <div id="disaster-banner" class="hidden">
+          <span class="siren">⚠️</span> <span id="disaster-text">FIRE OUTBREAK REPORTED!</span> <span class="siren">⚠️</span>
+        </div>
+
+        <!-- Tile Inspector Floating Panel -->
+        <div id="tile-inspector" class="hidden">
+          <div class="inspector-header">
+            <span id="insp-title">RESIDENTIAL ZONE</span>
+            <button id="btn-close-insp">✕</button>
+          </div>
+          <div class="inspector-body" id="insp-body">
+            <!-- Dynamic tile stats -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Construction Dock / Bottom Toolbar -->
+      <div id="construction-dock">
+        <div class="tool-category">
+          <button class="tool-btn active" data-tool="inspect" title="Inspect Tile [Q]"><span class="icon">🔍</span><span>INSPECT</span></button>
+          <button class="tool-btn" data-tool="road" data-cost="25" title="Build Road ($25) [W]"><span class="icon">🛣️</span><span>ROAD</span></button>
+          <button class="tool-btn" data-tool="demolish" data-cost="10" title="Demolish ($10) [E]"><span class="icon">🚜</span><span>BULLDOZE</span></button>
+        </div>
+        <div class="tool-divider"></div>
+        <div class="tool-category">
+          <button class="tool-btn" data-tool="zone_res" data-cost="100" title="Residential Zone ($100)"><span class="icon">🟩</span><span>RES (R)</span></button>
+          <button class="tool-btn" data-tool="zone_com" data-cost="100" title="Commercial Zone ($100)"><span class="icon">🟦</span><span>COM (C)</span></button>
+          <button class="tool-btn" data-tool="zone_ind" data-cost="100" title="Industrial Zone ($100)"><span class="icon">🟨</span><span>IND (I)</span></button>
+        </div>
+        <div class="tool-divider"></div>
+        <div class="tool-category">
+          <button class="tool-btn" data-tool="power_plant" data-cost="2500" title="Power Plant ($2500)"><span class="icon">⚡</span><span>POWER</span></button>
+          <button class="tool-btn" data-tool="water_pump" data-cost="1500" title="Water Pump ($1500)"><span class="icon">💧</span><span>WATER</span></button>
+          <button class="tool-btn" data-tool="police" data-cost="2000" title="Police Station ($2000)"><span class="icon">🚓</span><span>POLICE</span></button>
+          <button class="tool-btn" data-tool="fire" data-cost="2000" title="Fire Station ($2000)"><span class="icon">🚒</span><span>FIRE</span></button>
+          <button class="tool-btn" data-tool="hospital" data-cost="3500" title="Clinic/Hospital ($3500)"><span class="icon">🏥</span><span>HEALTH</span></button>
+          <button class="tool-btn" data-tool="school" data-cost="3000" title="School ($3000)"><span class="icon">🏫</span><span>SCHOOL</span></button>
+          <button class="tool-btn" data-tool="park" data-cost="400" title="City Park ($400)"><span class="icon">🌳</span><span>PARK</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pixel Commando: Jungle Assault</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="game-shell">
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="hud-box">SCORE <span id="scoreVal">000000</span></div>
+        <div class="hud-box">LIVES <span id="livesVal">3</span></div>
+        <div class="hud-box hp-box">HP <span id="hpVal">██████████</span></div>
+        <div class="hud-box">WEAPON <span id="weaponVal">BLASTER</span></div><div class="hud-box">FUEL <span id="fuelVal">100%</span></div><div class="hud-box">GRIP <span id="gripVal">100%</span></div><div class="hud-box">DMG <span id="damageVal">0%</span></div>
+        <div class="hud-box">AMMO <span id="ammoVal">30</span></div>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-box">LEVEL <span id="levelVal">1-1</span></div>
+        <div class="hud-box">COMBO <span id="comboVal">×1</span></div>
+        <div class="boss-wrap hidden" id="bossHud">
+          <span id="bossName">BOSS</span>
+          <div class="boss-bar"><div id="bossBarFill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="menu" class="screen active">
+      <div class="panel title-panel">
+        <div class="eyebrow">ORIGINAL 16-BIT ACTION</div>
+        <h1>PIXEL COMMANDO</h1>
+        <h2>JUNGLE ASSAULT</h2>
+        <p class="subtitle">A Retro Run-and-Gun Adventure</p>
+        <button id="startBtn">START GAME</button>
+        <button id="charBtn">SELECT CHARACTER</button>
+        <button id="levelBtn">LEVEL SELECT</button>
+        <button id="howBtn">HOW TO PLAY</button>
+        <button id="diffBtn">DIFFICULTY: NORMAL</button>
+        <button id="soundBtn">SOUND: ON</button>
+        <div class="tiny">Original graphics, effects, characters and sounds.</div>
+      </div>
+    </div>
+
+    <div id="characterScreen" class="screen hidden">
+      <div class="panel wide">
+        <h2>CHARACTER SELECT</h2>
+        <div id="characterCards" class="card-grid"></div>
+        <button id="charBackBtn">BACK</button>
+      </div>
+    </div>
+
+    <div id="levelScreen" class="screen hidden">
+      <div class="panel wide">
+        <h2>LEVEL SELECT</h2>
+        <div id="levelCards" class="card-grid"></div>
+        <button id="levelBackBtn">BACK</button>
+      </div>
+    </div>
+
+    <div id="howScreen" class="screen hidden">
+      <div class="panel">
+        <h2>HOW TO PLAY</h2>
+        <p><b>MOVE:</b> A / D or ← / →</p>
+        <p><b>AIM:</b> W / S or ↑ / ↓</p>
+        <p><b>JUMP:</b> Space</p>
+        <p><b>SHOOT:</b> J or Z</p>
+        <p><b>GRENADE:</b> K or X</p>
+        <p><b>PAUSE:</b> P</p>
+        <p>Use diagonal aim while moving and jumping. Stomp nothing—shoot everything.</p>
+        <p>Activate checkpoints. Grab ammo, health, power cells and weapon drops.</p>
+        <button id="howBackBtn">BACK</button>
+      </div>
+    </div>
+
+    <div id="pauseScreen" class="screen hidden">
+      <div class="panel">
+        <h2>PAUSED</h2>
+        <p>Press P or Resume to continue.</p>
+        <button id="resumeBtn">RESUME</button>
+        <button id="restartBtn">RESTART LEVEL</button>
+        <button id="pauseMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="gameOverScreen" class="screen hidden">
+      <div class="panel">
+        <h2>GAME OVER</h2>
+        <p id="gameOverText"></p>
+        <button id="overRetryBtn">RETRY</button>
+        <button id="overMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="completeScreen" class="screen hidden">
+      <div class="panel">
+        <h2>LEVEL COMPLETE!</h2>
+        <p id="completeText"></p>
+        <button id="nextLevelBtn">NEXT LEVEL</button>
+        <button id="completeRetryBtn">REPLAY</button>
+        <button id="completeMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="pitScreen" class="screen hidden">
+      <div class="panel">
+        <h2>PIT STOP</h2>
+        <p id="pitText">Service the commando transport before the next push.</p>
+        <button id="pitRefuelBtn">REFUEL — 2 SEC</button>
+        <button id="pitGripBtn">RESTORE GRIP — 2 SEC</button>
+        <button id="pitRepairBtn">REPAIR — 2 SEC</button>
+        <button id="pitContinueBtn">CONTINUE</button>
+      </div>
+    </div>
+
+    <div id="victoryScreen" class="screen hidden">
+      <div class="panel">
+        <h2>FINAL VICTORY!</h2>
+        <p>You cleared every battlefield and destroyed the Titan Core.</p>
+        <p id="victoryText"></p>
+        <button id="victoryReplayBtn">PLAY AGAIN</button>
+        <button id="victoryMenuBtn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="touchControls" class="touch-ui hidden">
+      <div class="touch-cluster left-cluster">
+        <button class="touch-btn" data-key="left">◀</button>
+        <button class="touch-btn" data-key="right">▶</button>
+      </div>
+      <div class="touch-cluster mid-cluster">
+        <button class="touch-btn small" data-key="down">C</button>
+      </div>
+      <div class="touch-cluster action-cluster">
+        <button class="touch-btn" data-key="jump">JUMP</button>
+        <button class="touch-btn" data-key="shoot">FIRE</button>
+        <button class="touch-btn" data-key="grenade">GRENADE</button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
